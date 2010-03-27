@@ -1,0 +1,6 @@
+pre { border: 1px solid #ccc; -moz-border-radius: 5px; background-color: #eee; margin: 1em; padding: 1em; }
+.hs-keyglyph, .hs-layout {color: red;}
+.hs-keyword {color: blue;}
+.hs-comment, .hs-comment a {color: green;}
+.hs-str, .hs-chr {color: teal;}
+.hs-keyword,.hs-conid, .hs-varid, .hs-conop, .hs-varop, .hs-num, .hs-cpp, .hs-sel, .hs-definition {}
