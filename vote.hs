@@ -1,14 +1,9 @@
 import Numeric.LinearAlgebra
 import Foreign.Marshal.Utils (fromBool)
 import Data.List (elemIndex)
--- import Data.Packed.Matrix
 
---m :: Matrix Double
---m = (4><4)(repeat 0)
-
-
-issues :: [String]
-issues = ["Let's watch a movie", "Let's build a fort", "Let's go swimming"]
+contenders :: [String]
+contenders = ["Let's watch a movie", "Let's build a fort", "Let's go swimming"]
 
 v1 :: [Int]
 v1 = [1, 2, 0] -- Active person
@@ -22,19 +17,23 @@ v3 = [1, 0, 2] -- Fort builder
 ballots :: [[Int]]
 ballots = [v1, v2, v3]
 
-ordered :: [Int] -> Matrix Double
-ordered prefs = buildMatrix n n builder
+ordered :: Int -> [Int] -> Matrix Double
+ordered size prefs = buildMatrix size size builder
   where
-    n = length prefs
-    builder (row, col) | row == col = 0
+    builder (row, col) | row == col = 0 -- zeros down the diagonal
     builder (row, col) =
       case elemIndex row prefs of
-        Just a  -> case elemIndex col prefs of
-                Just b  -> fromBool(a < b)
-                Nothing -> error "Couldn't find it"
-        Nothing -> error "Couldn't find it"
+        Just a  ->
+          case elemIndex col prefs of
+            Just b  -> fromBool(a < b)
+            Nothing -> 1.0
+        Nothing -> 0.0
 
-tally = foldr (+) (3><3 $ repeat 0) $ map ordered ballots
+tally :: Int -> [[Int]] -> Matrix Double
+tally size ballots = foldr (+) zeroMatrix ballotMatrices
+  where zeroMatrix = (size >< size $ repeat 0)
+        ballotMatrices = map (ordered size) ballots
 
 main = do
-  putStrLn $ show tally
+  putStrLn $ show (tally size ballots)
+  where size = length contenders
