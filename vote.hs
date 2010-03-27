@@ -24,17 +24,17 @@ ballots = [v1, v2, v3]
 
 ordered :: [Int] -> Matrix Double
 ordered prefs = buildMatrix n n builder
-	where
-		n = length prefs
-		builder (row, col) | row == col = 0
-		builder (row, col) =
-			case elemIndex row prefs of
-				Just a  -> case elemIndex col prefs of
-								Just b  -> fromBool(a < b)
-								Nothing -> error "Couldn't find it"
-				Nothing -> error "Couldn't find it"
+  where
+    n = length prefs
+    builder (row, col) | row == col = 0
+    builder (row, col) =
+      case elemIndex row prefs of
+        Just a  -> case elemIndex col prefs of
+                Just b  -> fromBool(a < b)
+                Nothing -> error "Couldn't find it"
+        Nothing -> error "Couldn't find it"
 
 tally = foldr (+) (3><3 $ repeat 0) $ map ordered ballots
 
 main = do
-	putStrLn $ show tally
+  putStrLn $ show tally
