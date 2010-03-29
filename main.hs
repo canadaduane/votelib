@@ -29,5 +29,5 @@ votes = take 10000 $ repeat [0..9]
 poll = Poll ["1","2","3","4","5","6","7","8","9","10"] votes
 
 main = do
-  --putStrLn $ show (winner rankedPairs poll)
-  putStrLn $ show (tally 10 votes)
+  putStrLn $ show (winner rankedPairs poll)
+  -- putStrLn $ show (tally 10 votes)

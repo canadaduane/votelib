@@ -27,12 +27,12 @@ where
   type Ballot = [Int]
 
   -- A Poll is a list of Candidates and a list of Ballots
-  data Poll = Poll [Candidate] [Ballot]
+  data Poll a = Poll [a] [Ballot]
   
   -- Here is the main function used to determine a winner.  It takes an
   -- ElectoralMethod function as a parameter so that different ways of
   -- choosing a winner can be used.  The winning candidate is returned.
-  winner :: ElectoralMethod -> Poll -> Candidate
+  winner :: ElectoralMethod -> Poll a -> a
   winner electoralMethod poll@(Poll cs bs) =
     cs !! (winnerIndex electoralMethod poll)
   
@@ -59,7 +59,7 @@ where
           ballotMatrices = map (ballotToMatrix size) ballots
 
   -- Index of the winning Candidate in the list of Candidates
-  winnerIndex :: (Matrix Double -> Maybe Int) -> Poll -> Int
+  winnerIndex :: (Matrix Double -> Maybe Int) -> Poll a -> Int
   winnerIndex electoralMethod (Poll cs bs) =
     case (electoralMethod $ tally (length cs) bs) of
       Just i  -> i
