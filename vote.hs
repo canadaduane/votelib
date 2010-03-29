@@ -5,6 +5,7 @@ module Vote (
   ,Poll(..)
   ,tally
   ,winner
+  ,ballotToMatrix
   
   ,simpleCount
   ,rankedPairs
@@ -24,7 +25,7 @@ where
 
   -- A Ballot is a ranked list of preferrences corresponding to a list
   -- of Candidates
-  type Ballot = [Int]
+  type Ballot = [Maybe Int]
 
   -- A Poll is a list of Candidates and a list of Ballots
   data Poll a = Poll [a] [Ballot]
@@ -43,13 +44,28 @@ where
   ballotToMatrix size prefs = buildMatrix size size builder
     where
       builder (row, col) | row == col = 0 -- zeros down the diagonal
-      builder (row, col) =
-        case elemIndex row prefs of
-          Just a  ->
-            case elemIndex col prefs of
-              Just b  -> fromBool(a < b)
-              Nothing -> 1.0
-          Nothing -> 0.0
+      builder (row, col) = fromBool(pref row < pref col)
+        where len = length prefs
+              pref p =
+                if p < len
+                  then case prefs !! p of
+                    Just v  -> v
+                    Nothing -> len
+                  else len
+
+  -- Rather than using the order to denote the vector indices, use order to denote priority
+  -- orderedBallotToMatrix :: Int -> Ballot -> Matrix Double
+  -- orderedBallotToMatrix size prefs = buildMatrix size size builder
+  --   where
+  --     builder (row, col) | row == col = 0 -- zeros down the diagonal
+  --     builder (row, col) = 
+  --       case elemIndex row prefs of
+  --         Just a  ->
+  --           case elemIndex col prefs of
+  --             Just b  -> fromBool(a < b)
+  --             Nothing -> 1.0
+  --         Nothing -> 0.0
+              
 
   -- Adds up all of the ballots and returns a square matrix of the
   -- specified size.
