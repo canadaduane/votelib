@@ -53,20 +53,6 @@ where
                     Nothing -> len
                   else len
 
-  -- Rather than using the order to denote the vector indices, use order to denote priority
-  -- orderedBallotToMatrix :: Int -> Ballot -> Matrix Double
-  -- orderedBallotToMatrix size prefs = buildMatrix size size builder
-  --   where
-  --     builder (row, col) | row == col = 0 -- zeros down the diagonal
-  --     builder (row, col) = 
-  --       case elemIndex row prefs of
-  --         Just a  ->
-  --           case elemIndex col prefs of
-  --             Just b  -> fromBool(a < b)
-  --             Nothing -> 1.0
-  --         Nothing -> 0.0
-              
-
   -- Adds up all of the ballots and returns a square matrix of the
   -- specified size.
   tally :: Int -> [Ballot] -> Matrix Double
