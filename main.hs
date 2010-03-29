@@ -7,9 +7,9 @@ main = do
 -- Test Polls
 
 votes1 =
-  [[1, 2, 0] -- Active person
-  ,[0, 1, 2] -- Movie watcher
-  ,[1, 0, 2] -- Fort builder
+  [map Just [1, 2, 0] -- Active person
+  ,map Just [0, 1, 2] -- Movie watcher
+  ,map Just [1, 0, 2] -- Fort builder
   ]
 testPoll1 = Poll ["Let's watch a movie",
                   "Let's build a fort",
@@ -23,10 +23,10 @@ testPoll1 = Poll ["Let's watch a movie",
 --   (take 17 $ repeat [3, 2, 1, 0])
 
 votes2 =
-  (take 42 $ repeat [0, 1, 2, 3]) ++
-  (take 26 $ repeat [3, 0, 1, 2]) ++
-  (take 15 $ repeat [3, 2, 0, 1]) ++
-  (take 17 $ repeat [3, 2, 1, 0])
+  (take 42 $ repeat (map Just [0, 1, 2, 3])) ++
+  (take 26 $ repeat (map Just [3, 0, 1, 2])) ++
+  (take 15 $ repeat (map Just [3, 2, 0, 1])) ++
+  (take 17 $ repeat (map Just [3, 2, 1, 0]))
 
 testPoll2 = Poll ["Memphis", "Nashville", "Chattanooga", "Knoxville"] votes2
 

@@ -48,8 +48,38 @@ noPrefBallot = TestCase (do
   assertBallot "v4" "m4" v4 m4
   )
 
+
+-- Test the outcomes of some simple polls
+tonightPoll =
+  Poll ["Let's watch a movie"
+       ,"Let's build a fort"
+       ,"Let's go swimming"]
+       [map Just [2, 1, 0] -- Active person
+       ,map Just [0, 1, 2] -- Movie watcher
+       ,map Just [1, 0, 2] -- Fort builder
+       ]
+
+tennesseePoll =
+  Poll ["Memphis"
+       ,"Nashville"
+       ,"Chattanooga"
+       ,"Knoxville"]
+       ((take 42 $ repeat (map Just [0, 1, 2, 3])) ++
+        (take 26 $ repeat (map Just [3, 0, 1, 2])) ++
+        (take 15 $ repeat (map Just [3, 2, 0, 1])) ++
+        (take 17 $ repeat (map Just [3, 2, 1, 0])))
+
+simplePoll = TestCase (do
+  assertEqual "Unexpected poll outcome" "Let's build a fort" (winner rankedPairs tonightPoll)
+  assertEqual "Unexpected poll outcome" "Nashville" (winner rankedPairs tennesseePoll)
+  )
+
+
+-- Tests GO!
 main = runTestTT $ TestList
   [TestLabel "basicBallot"       $ basicBallot
   ,TestLabel "placeholderBallot" $ placeholderBallot
   ,TestLabel "noPrefBallot"      $ noPrefBallot
+
+  ,TestLabel "simplePoll"        $ simplePoll
   ]
