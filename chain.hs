@@ -2,6 +2,7 @@ module Chain (
   Vote(..)
   ,Voter(..)
   ,proxyVote
+  ,votersToBallots
 ) where
   
   import Data.Graph.Inductive
@@ -79,9 +80,14 @@ module Chain (
     where leaf = snd . head . leavesOf $ gr
           weight = ufold ((+) . voterGetWeight . lab') 0 gr
 
-  proxyVote :: (DynGraph gr, Ord o) => gr (Voter o) b -> [(Voter o)]
+  proxyVote :: (DynGraph gr, Ord o) => gr (Voter o) b -> [Voter o]
   proxyVote gr = map sumOfSubtree denseTrees
     where
       trees = map collapseCycle (componentsOf gr)
       denseTrees = concatMap (componentsOf . delRedundantEdges) trees
 
+  votersToBallots :: (Ord o) => [Voter o] -> [Ballot]
+  votersToBallots vs = concatMap vballots vs
+    where vballots (Voter _ (Just (Vote n b _))) = take n $ repeat b
+          vballots (Voter _ Nothing) = []
+  
