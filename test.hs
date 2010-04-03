@@ -1,9 +1,14 @@
 import Test.HUnit
-import Vote
 import Numeric.LinearAlgebra
+import Data.Graph.Inductive
+
+import Vote
+import Chain
 
 assertBallot varName matName var mat =
   assertEqual ("Ballot " ++ varName ++ " not equal to matrix " ++ matName) mat (ballotToMatrix (length var) var)
+
+labUEdges = map (\(i,j) -> (i,j,()))
 
 -- Be able to construct a matrix from a ballot
 v1 = map Just [0, 1, 2]
@@ -75,6 +80,36 @@ simplePoll = TestCase (do
   )
 
 
+-- Sample voters used below
+threeVoters = [Voter "Kelty" (Just (Vote 1 (map Just [1,0,1,2]) 0))
+              ,Voter "Chris" Nothing
+              ,Voter "Mandy" (Just (Vote 1 (map Just [0,1,2,3]) 1))
+              ]
+
+-- Test that cycles are reduced to a single node
+
+g1 :: Gr (Voter Int) ()
+g1 = mkGraph (zip [0..] threeVoters)
+             (labUEdges [(0,1),(1,2),(2,0)])
+cycleGraph = TestCase (assertEqual failure expected actual)
+  where
+    failure  = "Cycle not reduced properly" 
+    expected = [Voter "Kelty" (Just (Vote 3 (map Just [1,0,1,2]) 0))]
+    actual   = proxyVote g1
+
+
+-- Test that subtrees of delegated proxies are working
+g2 :: Gr (Voter Int) ()
+g2 = mkGraph (zip [0..] threeVoters)
+             (labUEdges [(0,1),(1,2)])
+delegateGraph = TestCase (assertEqual failure expected actual)
+  where
+    failure  = "Delegated proxy not working" 
+    expected = [Voter "Mandy" (Just (Vote 2 (map Just [0,1,2,3]) 1))
+               ,Voter "Kelty" (Just (Vote 1 (map Just [1,0,1,2]) 0))]
+    actual   = proxyVote g2
+
+
 -- Tests GO!
 main = runTestTT $ TestList
   [TestLabel "basicBallot"       $ basicBallot
@@ -82,4 +117,7 @@ main = runTestTT $ TestList
   ,TestLabel "noPrefBallot"      $ noPrefBallot
 
   ,TestLabel "simplePoll"        $ simplePoll
+  
+  ,TestLabel "cycleGraph"        $ cycleGraph
+  ,TestLabel "delegateGraph"     $ delegateGraph
   ]
