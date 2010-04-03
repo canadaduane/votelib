@@ -1,9 +1,8 @@
 import Data.Graph.Inductive
-import Data.Graph.Inductive.Graph (Adj)
 import Data.Graph.Analysis
 import Data.List
 import Data.Function (on)
-import Time
+-- import Time
 import Vote (Ballot)
 
 
@@ -22,24 +21,17 @@ data Voter =
     (Maybe IVote) -- Possibly a vote, if the voter submitted a ballot
   deriving (Show, Eq)
 
+voterHasBallot :: Voter -> Bool
 voterHasBallot (Voter _ Nothing) = False
 voterHasBallot _ = True
 
-voteWeight :: (Ord a) => Vote a -> Int
-voteWeight (Vote w _ _) = w
+voterGetWeight :: Voter -> Int
+voterGetWeight (Voter _ (Just (Vote w _ _))) = w
+voterGetWeight (Voter _ Nothing) = 1
 
-voteWeight' :: (Ord a) => Maybe (Vote a) -> Int
-voteWeight' Nothing = 1
-voteWeight' (Just v) = voteWeight v
-
-sumVoteWeights' :: (Ord a) => [Maybe (Vote a)] -> Int
-sumVoteWeights' vs = foldr (+) 0 weights
-  where weights = map voteWeight' vs
-
-voterVote (Voter _ v) = v
-
-voterWithWeight (Voter n (Just (Vote _ b o))) w = Voter n (Just (Vote w b o))
-voterWithWeight v _ = v
+voterSetWeight :: Voter -> Int -> Voter
+voterSetWeight (Voter n (Just (Vote _ b o))) w = Voter n (Just (Vote w b o))
+voterSetWeight v _ = v
 
 -- Order voters in such a way that Nothing votes are greater than Just votes
 -- We'll use this to determine the "first voter" (i.e. the vote time of the
@@ -97,18 +89,14 @@ delRedundantEdges gr = delEdges (redundantEdges gr) gr
 collapseCycle :: (DynGraph gr) => gr Voter b -> gr Voter b
 collapseCycle gr = nmap combine collapsed
   where collapsed = collapseGraphBy [cyclesIn'] gr
-        combine n = voterWithWeight earliest weight
+        combine n = voterSetWeight earliest weight
           where earliest = minimum n
-                weight = (sumVoteWeights' . map voterVote) n
-
-voterGetWeight :: Context Voter a -> Int
-voterGetWeight (_, _, Voter _ (Just (Vote w _ _)), _) = w
-voterGetWeight (_, _, Voter _ Nothing, _) = 1
+                weight = foldr (+) 0 (map voterGetWeight n)
 
 sumOfSubtree :: (DynGraph gr) => gr Voter b -> Voter
-sumOfSubtree gr = voterWithWeight leaf weight
+sumOfSubtree gr = voterSetWeight leaf weight
   where leaf = snd . head . leavesOf $ gr
-        weight = ufold ((+) . voterGetWeight) 0 gr
+        weight = ufold ((+) . voterGetWeight . lab') 0 gr
 
 proxyVote :: (DynGraph gr) => gr Voter b -> [Voter]
 proxyVote gr = map sumOfSubtree denseTrees
@@ -118,6 +106,5 @@ proxyVote gr = map sumOfSubtree denseTrees
 
 -- 
 main = do
-  putStrLn $ "Graph of g:\n" ++ (show votG)
-  putStrLn $ "\nComponents of g:\n" ++ (show (componentsOf votG))
-  -- putStrLn $ "\nIndep of g:\n" ++ (show (indep votG))
+  putStrLn $ "Graph of v2G:\n" ++ (show v2G)
+  putStrLn $ "\nVoter summary of v2G:\n" ++ (show (proxyVote v2G))
