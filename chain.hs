@@ -67,7 +67,7 @@ voters =
   ,Voter "D1" Nothing
   ,Voter "D2" Nothing
   ,Voter "C1" Nothing
-  ,Voter "C2" Nothing
+  ,Voter "C2" (Just (Vote 1 (map Just [3,0,1,2]) 1))
   ]
 
 labUEdges = map (\(i,j) -> (i,j,()))
@@ -101,14 +101,16 @@ collapseCycle gr = nmap combine collapsed
           where earliest = minimum n
                 weight = (sumVoteWeights' . map voterVote) n
 
+voterGetWeight :: Context Voter a -> Int
 voterGetWeight (_, _, Voter _ (Just (Vote w _ _)), _) = w
-voterGetWeight (_, _, Voter _ Nothing, _) = 0
+voterGetWeight (_, _, Voter _ Nothing, _) = 1
 
 sumOfSubtree :: (DynGraph gr) => gr Voter b -> Voter
 sumOfSubtree gr = voterWithWeight leaf weight
   where leaf = snd . head . leavesOf $ gr
         weight = ufold ((+) . voterGetWeight) 0 gr
 
+proxyVote :: (DynGraph gr) => gr Voter b -> [Voter]
 proxyVote gr = map sumOfSubtree denseTrees
   where
     trees = map collapseCycle (componentsOf gr)
