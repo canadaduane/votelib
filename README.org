@@ -1,0 +1,18 @@
+ | Status:   | Under Development                 |
+ | Location: | [[http://github.com/canadaduane/votelib]] |
+ | Version:  | 0.1                               |
+
+* Chain Vote: Easy, Fair Voting for the 21st Century
+
+  Chain Vote implements Maximum Majority Voting [[http://wiki.electorama.com/wiki/Maximum_Majority_Voting]] and
+  Delegable Proxy Voting [[http://fc.antioch.edu/~james_green-armytage/vm/proxy.htm]].
+  
+  That's why Chain Vote is "fair".  The "easy" part is coming soon.
+  
+* History
+
+** 2010-04-03: Version 0.1
+
+   - Vote module
+   - Chain module
+   - Tests
