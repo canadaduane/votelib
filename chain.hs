@@ -80,47 +80,7 @@ v2G :: Gr Voter ()
 v2G = mkGraph (zip [0..] voters)
                (labUEdges [(0,1),(1,2),(2,3),(3,4),(4,5),(5,6),(6,7)])
 
-
--- rootsAndCoreOf :: (DynGraph g, Eq a, Eq b) => g a b -> (LNGroup a, g a b)
--- rootsAndCoreOf gr = (rootsOf gr, coreOf gr)
-
--- Given a graph component, determine the vote of the component
--- based on the leaf (if it has no cycles) or the earliest vote
--- (if it has a cycle)
--- proxyVoteGraph :: (DynGraph g, Ord a) => g a b -> g a b
--- proxyVoteGraph gr =
---   case length leaves of
---     0 -> case minimum (map snd firstCycle) of
---            Voter name Nothing -> error "No one voted in a cycle"
---            Voter name vote    -> vote
---     1 -> snd firstLeaf
---     _ -> error "Graph has more than one root"
---   where cycles     = cyclesIn gr
---         leaves     = leavesOf gr
---         firstCycle = head . cyclesIn $ gr
---         firstLeaf  = head . leavesOf $ gr
-
--- cycleReducedGraph gr =
---   if length cycles == 0
---     then gr
---     else 
---   where cycles     = cyclesIn gr
---         firstCycle = head . cyclesIn $ gr
-
--- proxyVote :: (DynGraph g) => g a b -> [IVote]
--- proxyVote gr = ufold voteCollapse [] gr
---   where
---     voteCollapse (froms, node, voter, tos) ls =
---       case voterHasBallot voter of
---         True -> 
---         False -> ls
---       where
---         to = if length tos == 1
---                then lab gr (head tos)
---                else Nothing
--- 
-
-redundantEdges :: (Graph gr) => gr Voter b -> [(Node, Node)]
+redundantEdges :: (DynGraph gr) => gr Voter b -> [(Node, Node)]
 redundantEdges gr = ufold didVote [] gr
   where 
     didVote (_, node, voter, _) edges = 
@@ -130,11 +90,29 @@ redundantEdges gr = ufold didVote [] gr
              (n1, n2, l) -> (n1, n2) : edges
            else edges
 
-collapse gr = nmap combine collapsed
+delRedundantEdges :: (DynGraph gr) => gr Voter b -> gr Voter b
+delRedundantEdges gr = delEdges (redundantEdges gr) gr
+
+
+collapseCycle :: (DynGraph gr) => gr Voter b -> gr Voter b
+collapseCycle gr = nmap combine collapsed
   where collapsed = collapseGraphBy [cyclesIn'] gr
         combine n = voterWithWeight earliest weight
           where earliest = minimum n
                 weight = (sumVoteWeights' . map voterVote) n
+
+voterGetWeight (_, _, Voter _ (Just (Vote w _ _)), _) = w
+voterGetWeight (_, _, Voter _ Nothing, _) = 0
+
+sumOfSubtree :: (DynGraph gr) => gr Voter b -> Voter
+sumOfSubtree gr = voterWithWeight leaf weight
+  where leaf = snd . head . leavesOf $ gr
+        weight = ufold ((+) . voterGetWeight) 0 gr
+
+proxyVote gr = map sumOfSubtree denseTrees
+  where
+    trees = map collapseCycle (componentsOf gr)
+    denseTrees = concatMap (componentsOf . delRedundantEdges) trees
 
 -- 
 main = do
