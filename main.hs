@@ -5,7 +5,7 @@ import Chain
 voterName :: (Ord o) => Voter o -> String
 voterName (Voter name _) = name
 
-vote prefs time = Just (Vote 1 prefs time)
+vote prefs time = Just (Vote 1 (map Just prefs) time)
 
 voters = [Voter "Kelty" $ vote [1,0,1,2] 0
          ,Voter "Chris" Nothing
@@ -35,11 +35,11 @@ showb bs = concatMap (nl . show) bs
 
 
 -- showBallot :: [String] -> Ballot -> String
-showBallot :: [String] -> Ballot -> [(Int, String)]
+showBallot :: [String] -> Ballot -> [(Maybe Int, String)]
 showBallot opts b = cs
   where cs = zip b opts
 
-showOptions :: Ballot -> [(Int, String)]
+showOptions :: Ballot -> [(Maybe Int, String)]
 showOptions = showBallot options
 
 main = do

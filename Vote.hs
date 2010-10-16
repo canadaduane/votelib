@@ -27,7 +27,7 @@ where
   -- of Candidates, e.g. [1, 2, 0] means the third candidate is most
   -- preferred (0 is highest preference) followed by the first, then the
   -- second.
-  type Ballot = [Int]
+  type Ballot = [Maybe Int]
 
   -- A Poll is a list of Candidates and a list of Ballots
   data Poll a = Poll [a] [Ballot]
@@ -46,11 +46,13 @@ where
   ballotToMatrix size prefs = buildMatrix size size builder
     where
       builder (row, col) | row == col = 0 -- zeros down the diagonal
-      builder (row, col) = fromBool (pref row < pref col)
+      builder (row, col) = fromBool(pref row < pref col)
         where len = length prefs
               pref p =
                 if p < len
-                  then prefs !! p
+                  then case prefs !! p of
+                    Just v  -> v
+                    Nothing -> len
                   else len
 
   -- Adds up all of the ballots and returns a square matrix of the

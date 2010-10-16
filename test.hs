@@ -11,13 +11,13 @@ assertBallot varName matName var mat =
 labUEdges = map (\(i,j) -> (i,j,()))
 
 -- Be able to construct a matrix from a ballot
-v1 = [0, 1, 2]
+v1 = map Just [0, 1, 2]
 m1 = fromLists
   [[0, 1, 1]
   ,[0, 0, 1]
   ,[0, 0, 0]
   ]
-v2 = [1, 0, 2, 3]
+v2 = map Just [1, 0, 2, 3]
 m2 = fromLists
   [[0, 0, 1, 1]
   ,[1, 0, 1, 1]
@@ -29,8 +29,20 @@ basicBallot = TestCase (do
   assertBallot "v2" "m2" v2 m2
   )
 
+-- Consider cases when ballot includes Nothing placeholders
+v3 = [Nothing, Just 0, Just 1, Nothing]
+m3 = fromLists
+  [[0, 0, 0, 0]
+  ,[1, 0, 1, 1]
+  ,[1, 0, 0, 1]
+  ,[0, 0, 0, 0]
+  ]
+placeholderBallot = TestCase (do
+  assertBallot "v3" "m3" v3 m3
+  )
+
 -- Ballots should be able to show "no preference" by double listing ordinals
-v4 = [0, 1, 1, 2]
+v4 = map Just [0, 1, 1, 2]
 m4 = fromLists
   [[0, 1, 1, 1]
   ,[0, 0, 0, 1]
@@ -47,9 +59,9 @@ tonightPoll =
   Poll ["Let's watch a movie"
        ,"Let's build a fort"
        ,"Let's go swimming"]
-       [[2, 1, 0] -- Active person
-       ,[0, 1, 2] -- Movie watcher
-       ,[1, 0, 2] -- Fort builder
+       [map Just [2, 1, 0] -- Active person
+       ,map Just [0, 1, 2] -- Movie watcher
+       ,map Just [1, 0, 2] -- Fort builder
        ]
 
 tennesseePoll =
@@ -57,10 +69,10 @@ tennesseePoll =
        ,"Nashville"
        ,"Chattanooga"
        ,"Knoxville"]
-       ((take 42 $ repeat [0, 1, 2, 3]) ++
-        (take 26 $ repeat [3, 0, 1, 2]) ++
-        (take 15 $ repeat [3, 2, 0, 1]) ++
-        (take 17 $ repeat [3, 2, 1, 0]))
+       ((take 42 $ repeat (map Just [0, 1, 2, 3])) ++
+        (take 26 $ repeat (map Just [3, 0, 1, 2])) ++
+        (take 15 $ repeat (map Just [3, 2, 0, 1])) ++
+        (take 17 $ repeat (map Just [3, 2, 1, 0])))
 
 simplePoll = TestCase (do
   assertEqual "Unexpected poll outcome" "Let's build a fort" (winner rankedPairs tonightPoll)
@@ -69,9 +81,9 @@ simplePoll = TestCase (do
 
 
 -- Sample voters used below
-threeVoters = [Voter "Kelty" (Just (Vote 1 [1,0,1,2] 0))
+threeVoters = [Voter "Kelty" (Just (Vote 1 (map Just [1,0,1,2]) 0))
               ,Voter "Chris" Nothing
-              ,Voter "Mandy" (Just (Vote 1 [0,1,2,3] 1))
+              ,Voter "Mandy" (Just (Vote 1 (map Just [0,1,2,3]) 1))
               ]
 
 -- Test that cycles are reduced to a single node
@@ -82,8 +94,7 @@ g1 = mkGraph (zip [0..] threeVoters)
 cycleGraph = TestCase (assertEqual failure expected actual)
   where
     failure  = "Cycle not reduced properly" 
-    expected = [Voter "Mandy" (Just (Vote 2 [0,1,2,3] 1))
-               ,Voter "Kelty" (Just (Vote 1 [1,0,1,2] 0))]
+    expected = [Voter "Kelty" (Just (Vote 3 (map Just [1,0,1,2]) 0))]
     actual   = proxyVote g1
 
 
@@ -94,14 +105,15 @@ g2 = mkGraph (zip [0..] threeVoters)
 delegateGraph = TestCase (assertEqual failure expected actual)
   where
     failure  = "Delegated proxy not working" 
-    expected = [Voter "Mandy" (Just (Vote 2 [0,1,2,3] 1))
-               ,Voter "Kelty" (Just (Vote 1 [1,0,1,2] 0))]
+    expected = [Voter "Mandy" (Just (Vote 2 (map Just [0,1,2,3]) 1))
+               ,Voter "Kelty" (Just (Vote 1 (map Just [1,0,1,2]) 0))]
     actual   = proxyVote g2
 
 
 -- Tests GO!
 main = runTestTT $ TestList
   [TestLabel "basicBallot"       $ basicBallot
+  ,TestLabel "placeholderBallot" $ placeholderBallot
   ,TestLabel "noPrefBallot"      $ noPrefBallot
 
   ,TestLabel "simplePoll"        $ simplePoll
