@@ -2,6 +2,9 @@ import Data.Graph.Inductive
 import Vote
 import Chain
 
+voterName :: (Ord o) => Voter o -> String
+voterName (Voter name _) = name
+
 vote prefs time = Just (Vote 1 (map Just prefs) time)
 
 voters = [Voter "Kelty" $ vote [1,0,1,2] 0
@@ -12,19 +15,38 @@ voters = [Voter "Kelty" $ vote [1,0,1,2] 0
          ,Voter "Yuan"  $ vote [0,0,1] 0
          ,Voter "Ming"  $ vote [0,1,1] 1
          ,Voter "Wan"   Nothing
+         ,Voter "Ping"  Nothing
          ]
 
 g1 :: Gr (Voter Int) ()
-g1 = mkGraph (zip [0..] voters) [(0,1,()),(1,2,()),(2,0,()),(3,1,()),(6,5,()),(5,4,())]
+g1 = mkGraph (zip [0..] voters) [(0,1,()),(1,2,()),(2,0,()),(3,1,()),(6,5,()),(5,4,()),(7,6,())]
 
-ballots = votersToBallots (proxyVote g1)
+votersDisseminated = proxyVote g1
 
-poll = Poll ["Option 0", "Option 1", "Option 2", "Option 3"] ballots
+ballots = votersToBallots votersDisseminated
+
+options = ["Chicago", "New York", "Lethbridge", "Toronto"]
+poll = Poll options ballots
 
 showb bs = concatMap (nl . show) bs
   where nl = (++ "\n")
-        
+
+-- rankedBallot :: Ballot -> [[Int]]
+
+
+-- showBallot :: [String] -> Ballot -> String
+showBallot :: [String] -> Ballot -> [(Maybe Int, String)]
+showBallot opts b = cs
+  where cs = zip b opts
+
+showOptions :: Ballot -> [(Maybe Int, String)]
+showOptions = showBallot options
 
 main = do
-  putStrLn (showb ballots)
+  putStrLn (show (map showOptions ballots))
+  -- putStrLn ("Redundant Edges: " ++ show (redundantEdges g1) ++ "\n")
+  putStrLn (showb (zip3 (map voterName votersDisseminated)
+                        (map voterGetWeight votersDisseminated)
+                        (map voterGetBallot votersDisseminated)))
   putStrLn (show (winner rankedPairs poll))
+

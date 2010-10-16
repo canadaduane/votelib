@@ -8,7 +8,12 @@
   Delegable Proxy Voting [[http://fc.antioch.edu/~james_green-armytage/vm/proxy.htm]].
   
   That's why Chain Vote is "fair".  The "easy" part is coming soon.
-  
+
+* Requirements
+
+    - Hackage Packages: graphalyze, hmatrix
+    - GSL (Gnu Scientific Library)
+    
 * History
 
 ** 2010-04-03: Version 0.1

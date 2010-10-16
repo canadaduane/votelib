@@ -23,8 +23,10 @@ where
   -- A Candidate is the person or issue that is being voted on
   type Candidate = String
 
-  -- A Ballot is a ranked list of preferrences corresponding to a list
-  -- of Candidates
+  -- A Ballot is a ranked list of preferences corresponding to a list
+  -- of Candidates, e.g. [1, 2, 0] means the third candidate is most
+  -- preferred (0 is highest preference) followed by the first, then the
+  -- second.
   type Ballot = [Maybe Int]
 
   -- A Poll is a list of Candidates and a list of Ballots
