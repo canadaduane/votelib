@@ -4,6 +4,7 @@ import Data.Function (on)
 import Data.List (sortBy)
 import Vote
 import Chain
+import Text.CSV
 
 voterName :: (Ord o) => Voter o -> String
 voterName (Voter name _) = name
@@ -42,8 +43,7 @@ rankedBallot ballot = sortBy (compare `on` snd) listOnly
         listOnly = catMaybes (map unwrap indexed)
         
 
--- showBallot :: [String] -> Ballot -> String
--- showBallot :: [String] -> Ballot -> [(String, Int)]
+showBallot :: [String] -> Ballot -> [(String, Int)]
 showBallot opts b = map namePair ranked
   where ranked = rankedBallot b
         candidate k = opts !! k
