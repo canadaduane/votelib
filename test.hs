@@ -94,7 +94,8 @@ g1 = mkGraph (zip [0..] threeVoters)
 cycleGraph = TestCase (assertEqual failure expected actual)
   where
     failure  = "Cycle not reduced properly" 
-    expected = [Voter "Kelty" (Just (Vote 3 (map Just [1,0,1,2]) 0))]
+    expected = [Voter "Mandy" (Just (Vote 2 [Just 0,Just 1,Just 2,Just 3] 1))
+               ,Voter "Kelty" (Just (Vote 1 [Just 1,Just 0,Just 1,Just 2] 0))]
     actual   = proxyVote g1
 
 
