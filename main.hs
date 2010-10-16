@@ -1,7 +1,7 @@
 import Data.Graph.Inductive
 import Maybe (catMaybes, fromJust)
 import Data.Function (on)
-import Data.List (sortBy)
+import Data.List (sortBy, elemIndex)
 import Vote
 import Chain
 import Text.CSV
@@ -52,11 +52,20 @@ showBallot opts b = map namePair ranked
 showOptions :: Ballot -> [(String, Int)]
 showOptions = showBallot options
 
+readColumn :: String -> CSV -> [String]
+readColumn columnName csv = map (\row -> row !! columnIndex) rows
+ where header = head csv
+       rows = tail csv
+       columnIndex = fromJust (elemIndex columnName header)
 
+-- voterFromRow :: 
 
 main = do
-  putStrLn (showb (zip3 (map voterName votersDisseminated)
-                        (map voterGetWeight votersDisseminated)
-                        (map (showOptions . fromJust . voterGetBallot) votersDisseminated)))
-  putStrLn (show (winner rankedPairs poll))
+  csv <- (parseCSVFromFile "options.csv")
+  let x = either (fail "can't load CSV") (readColumn "OptionName") csv
+  putStrLn (show x)
+  -- putStrLn (showb (zip3 (map voterName votersDisseminated)
+  --                       (map voterGetWeight votersDisseminated)
+  --                       (map (showOptions . fromJust . voterGetBallot) votersDisseminated)))
+  -- putStrLn (show (winner rankedPairs poll))
 
