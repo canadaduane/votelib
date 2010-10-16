@@ -34,16 +34,6 @@ poll = Poll options ballots
 showb bs = concatMap (nl . show) bs
   where nl = (++ "\n")
 
--- [Just 1, Just 0, Just 2] -> [[1], [0], [2]]
--- [Just 1, Just 1, Just 0] -> [[2], [0, 1]]
--- [Just 0, Just 1, Nothing, Just 0] -> [[3, 0], [1]]
--- 
--- [(0, Just 0), (1, Just 1), (2, Nothing), (3, Just 0)]
--- [Just (0, 0), Just (1, 1), Nothing, Just (3, 0)]
--- [(0, Just 0), (1, Just 1), (3, Just 0)]
--- [(0, 0), (1, 1), (3, 0)]
--- [[3, 0], [1]]
-
 rankedBallot :: Ballot -> [(Int, Int)]
 rankedBallot ballot = sortBy (compare `on` snd) listOnly
   where indexed = zip [0..] ballot
