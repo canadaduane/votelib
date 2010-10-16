@@ -3,6 +3,9 @@ module Chain (
   ,Voter(..)
   ,proxyVote
   ,votersToBallots
+  ,voterGetWeight
+  ,voterGetBallot
+  ,redundantEdges
 ) where
   
   import Data.Graph.Inductive
@@ -30,6 +33,10 @@ module Chain (
   voterHasBallot (Voter _ Nothing) = False
   voterHasBallot _ = True
 
+  voterGetBallot :: (Ord o) => Voter o -> Maybe Ballot
+  voterGetBallot (Voter _ (Just (Vote _ b _))) = Just b
+  voterGetBallot _ = Nothing
+
   voterGetWeight :: (Ord o) => Voter o -> Int
   voterGetWeight (Voter _ (Just (Vote w _ _))) = w
   voterGetWeight (Voter _ Nothing) = 1
@@ -54,6 +61,8 @@ module Chain (
             Nothing -> LT
             Just (Vote _ _ x) -> compare y x
 
+  -- Edges that point from a voter who has a ballot, to a voter who does NOT have a ballot
+  -- are redundant because if a voter has a ballot, then their proxy will not be used.
   redundantEdges :: (DynGraph gr, Ord o) => gr (Voter o) b -> [(Node, Node)]
   redundantEdges gr = ufold didVote [] gr
     where 
@@ -80,14 +89,17 @@ module Chain (
     where leaf = snd . head . leavesOf $ gr
           weight = ufold ((+) . voterGetWeight . lab') 0 gr
 
+  -- Reduce a graph to a list of Participating Voters, each weighted according to the
+  -- trust network established by the delegable proxy graph.
   proxyVote :: (DynGraph gr, Ord o) => gr (Voter o) b -> [Voter o]
   proxyVote gr = map sumOfSubtree denseTrees
     where
-      trees = map collapseCycle (componentsOf gr)
-      denseTrees = concatMap (componentsOf . delRedundantEdges) trees
+      trees = map collapseCycle ((componentsOf . delRedundantEdges) gr)
+      denseTrees = concatMap componentsOf trees
 
   votersToBallots :: (Ord o) => [Voter o] -> [Ballot]
   votersToBallots vs = concatMap vballots vs
     where vballots (Voter _ (Just (Vote n b _))) = take n $ repeat b
           vballots (Voter _ Nothing) = []
+
   
