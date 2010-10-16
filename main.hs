@@ -1,4 +1,7 @@
 import Data.Graph.Inductive
+import Maybe (catMaybes, fromJust)
+import Data.Function (on)
+import Data.List (sortBy)
 import Vote
 import Chain
 
@@ -31,22 +34,39 @@ poll = Poll options ballots
 showb bs = concatMap (nl . show) bs
   where nl = (++ "\n")
 
--- rankedBallot :: Ballot -> [[Int]]
+-- [Just 1, Just 0, Just 2] -> [[1], [0], [2]]
+-- [Just 1, Just 1, Just 0] -> [[2], [0, 1]]
+-- [Just 0, Just 1, Nothing, Just 0] -> [[3, 0], [1]]
+-- 
+-- [(0, Just 0), (1, Just 1), (2, Nothing), (3, Just 0)]
+-- [Just (0, 0), Just (1, 1), Nothing, Just (3, 0)]
+-- [(0, Just 0), (1, Just 1), (3, Just 0)]
+-- [(0, 0), (1, 1), (3, 0)]
+-- [[3, 0], [1]]
 
+rankedBallot :: Ballot -> [(Int, Int)]
+rankedBallot ballot = sortBy (compare `on` snd) listOnly
+  where indexed = zip [0..] ballot
+        unwrap (a, Just b) = Just (a, b+1)
+        unwrap (a, Nothing) = Nothing
+        listOnly = catMaybes (map unwrap indexed)
+        
 
 -- showBallot :: [String] -> Ballot -> String
-showBallot :: [String] -> Ballot -> [(Maybe Int, String)]
-showBallot opts b = cs
-  where cs = zip b opts
+-- showBallot :: [String] -> Ballot -> [(String, Int)]
+showBallot opts b = map namePair ranked
+  where ranked = rankedBallot b
+        candidate k = opts !! k
+        namePair (k, rank) = (candidate k, rank)
 
-showOptions :: Ballot -> [(Maybe Int, String)]
+showOptions :: Ballot -> [(String, Int)]
 showOptions = showBallot options
 
+
+
 main = do
-  putStrLn (show (map showOptions ballots))
-  -- putStrLn ("Redundant Edges: " ++ show (redundantEdges g1) ++ "\n")
   putStrLn (showb (zip3 (map voterName votersDisseminated)
                         (map voterGetWeight votersDisseminated)
-                        (map voterGetBallot votersDisseminated)))
+                        (map (showOptions . fromJust . voterGetBallot) votersDisseminated)))
   putStrLn (show (winner rankedPairs poll))
 

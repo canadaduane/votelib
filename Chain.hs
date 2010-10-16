@@ -5,7 +5,6 @@ module Chain (
   ,votersToBallots
   ,voterGetWeight
   ,voterGetBallot
-  ,redundantEdges
 ) where
   
   import Data.Graph.Inductive
