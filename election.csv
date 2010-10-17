@@ -1,9 +1,9 @@
 ID,Name,DelegateID,Preferences,Time
-0,Kelty,1,[1|0|1|2],0
+0,Kelty,1,1|0|1|2,0
 1,Chris,2,,0
-2,Mandy,0,[0|1|2|3],1
+2,Mandy,0,0|1|2|3,1
 3,Duane,1,,0
-4,Yuan,,[0|0|1],0
-5,Ming,4,[0|1|1] 1
+4,Yuan,,0|0|1,0
+5,Ming,4,0|1|1,1
 6,Wan,5,,1
 7,Ping,6,,1

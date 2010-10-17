@@ -1,7 +1,8 @@
 import Data.Graph.Inductive
-import Maybe (catMaybes, fromJust)
 import Data.Function (on)
 import Data.List (sortBy, elemIndex)
+import Data.List.Split (splitOn)
+import Maybe (catMaybes, fromJust)
 import Vote
 import Chain
 import Text.CSV
@@ -53,19 +54,51 @@ showOptions :: Ballot -> [(String, Int)]
 showOptions = showBallot options
 
 readColumn :: String -> CSV -> [String]
-readColumn columnName csv = map (\row -> row !! columnIndex) rows
+readColumn columnName csv = map get rows
  where header = head csv
        rows = tail csv
        columnIndex = fromJust (elemIndex columnName header)
+       get row = if columnIndex < length row 
+               then row !! columnIndex
+               else error ("Umm, can't get column " ++ (show columnIndex) ++ " when length is " ++ (show (length row)) ++ ": " ++ (show row))
 
--- voterFromRow :: 
+voterFromRecord :: Record -> Voter Int
+voterFromRecord rec =
+    if prefs == ""
+      then Voter name Nothing
+      else Voter name $ vote parsedPrefs time
+  where name        = (rec !! 1)
+        prefs       = (rec !! 3)
+        parsedPrefs = map read (splitOn "|" prefs) :: [Int]
+        time        = read (rec !! 4) :: Int
+
+graphFromCSV :: CSV -> Gr (Voter Int) ()
+graphFromCSV csv = mkGraph (zip ids voters) edges
+  where ids        = map read (readColumn "ID" csv) :: [Int]
+        voters     = map voterFromRecord (tail csv)
+        delegates  = readColumn "DelegateID" csv
+        edges      = map convert (filter empty (zip3 ids delegates (repeat ())))
+          where convert (a, b, c) = (a, read b, c) :: (Int, Int, ())
+                empty   (a, b, c) = (b /= "")
 
 main = do
-  csv <- (parseCSVFromFile "options.csv")
-  let x = either (fail "can't load CSV") (readColumn "OptionName") csv
-  putStrLn (show x)
-  -- putStrLn (showb (zip3 (map voterName votersDisseminated)
-  --                       (map voterGetWeight votersDisseminated)
-  --                       (map (showOptions . fromJust . voterGetBallot) votersDisseminated)))
-  -- putStrLn (show (winner rankedPairs poll))
+  optionsCSV <- (parseCSVFromFile "options.csv")
+  let options = either (fail "can't load options.csv") (readColumn "OptionName") optionsCSV
+  -- putStrLn (show x)
+  
+  electionCSV <- (parseCSVFromFile "election.csv")
+  let graph = either (fail "can't load election.csv") graphFromCSV electionCSV
+  -- let y = either (fail "can't load election.csv") id electionCSV
+  -- putStrLn (show y)
+  
+  -- putStrLn (show $ voterFromRecord (y !! 1))
+  
+  let proxies = proxyVote graph
+  let ballots = votersToBallots proxies
+  let poll = Poll options ballots
+  
+  putStrLn (showb (zip3 (map voterName proxies)
+                        (map voterGetWeight proxies)
+                        (map (showOptions . fromJust . voterGetBallot) proxies)))
+  putStrLn (show (winner rankedPairs poll))
 

@@ -11,7 +11,7 @@
 
 * Requirements
 
-    - Hackage Packages: graphalyze, hmatrix
+    - Hackage Packages: graphalyze, hmatrix, split, csv
     - GSL (Gnu Scientific Library)
     
 * History
