@@ -33,7 +33,7 @@ electionResult :: String -> String
 electionResult electionString =
   if electionString == ""
     then "Usage: Input should be a CSV file"
-    else winner rankedPairs (Poll options ballots)
+    else winner rankedPairs (Poll options ballots) ++ "\n"
   where
     electionCSV = toCSV electionString
     graph       = graphFromCSV electionCSV
