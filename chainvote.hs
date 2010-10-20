@@ -21,8 +21,9 @@ voterFromRecord header rec =
         parsedPrefs     = map read (splitOn "|" prefs) :: [Int]
 
 graphFromCSV :: CSV -> Gr (Voter Int) ()
-graphFromCSV csv = mkGraph (zip ids voters) edges
-  where ids        = map read (readColumn csv "ID") :: [Int]
+graphFromCSV originalCsv = mkGraph (zip ids voters) edges
+  where csv        = filter (\ row -> head row /= "") originalCsv -- skip lines that have no ID
+        ids        = map read (readColumn csv "ID") :: [Int]
         voters     = map (voterFromRecord (head csv)) (tail csv)
         delegates  = readColumn csv "DelegateID"
         edges      = map convert (filter empty (zip3 ids delegates (repeat ())))
