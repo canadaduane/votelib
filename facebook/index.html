@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+	<title>Chain Vote</title>
+	<script src="js/jquery.js" type="text/javascript" charset="utf-8"></script>
+</head>
+
+<body>
+  <div id="content"></div>
+  <div id="fb-root"></div>
+  <script>
+    window.fbAsyncInit = function() {
+      FB.init({appId: '155484017822333', status: true, cookie: true, xfbml: true});
+      
+      FB.getLoginStatus(function(response) {
+        if (response.session) {
+          $('#content').html("User known");
+        } else {
+          $('#content').html("User unknown");
+        }
+      });
+      
+    };
+    (function() {
+      var e = document.createElement('script'); e.async = true;
+      e.src = document.location.protocol + '//connect.facebook.net/en_US/all.js';
+      document.getElementById('fb-root').appendChild(e);
+    }());
+  </script>
+
+<!-- <h1>Chain Vote</h1>
+
+<p>Hello World</p>
+
+<fb:serverFbml>
+<script type="text/fbml">
+<fb:fbml>
+    <fb:request-form
+        method='POST'
+        type='join my Smiley group'
+        content='Would you like to join my Smiley group?
+            <fb:req-choice url="http://apps.facebook.com/smiley/yes.php" 
+                label="Yes" />'
+            <fb:req-choice url="http://apps.facebook.com/smiley/no.php" 
+                label="No" />'
+        <fb:multi-friend-selector 
+            actiontext="Invite your friends to join your Smiley group.">
+    </fb:request-form>
+</fb:fbml>
+</script>
+</fb:serverFbml> -->
+
+</body>
+</html>
