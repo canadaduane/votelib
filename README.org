@@ -1,6 +1,6 @@
  | Status:   | Under Development                 |
  | Location: | [[http://github.com/canadaduane/votelib]] |
- | Version:  | 0.1                               |
+ | Version:  | 0.2                               |
 
 * Chain Vote: Easy, Fair Voting for the 21st Century
 
@@ -11,11 +11,15 @@
 
 * Requirements
 
-    - Hackage Packages: graphalyze, hmatrix, split, csv
-    - GSL (Gnu Scientific Library)
+    - Hackage Packages: graphalyze, split, csv, vector
     
 * History
 
+** 2010-11-03: Version 0.2
+   - Removed dependency on linear algebra library (hmatrix)
+   - Uses array vector library instead
+   - Added docs
+   
 ** 2010-04-03: Version 0.1
 
    - Vote module
