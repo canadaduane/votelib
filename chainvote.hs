@@ -2,7 +2,7 @@ import Data.Graph.Inductive
 import Data.Function (on)
 import Data.List (sortBy, elemIndex)
 import Data.List.Split (splitOn)
-import Maybe (catMaybes, fromJust)
+import Data.Maybe (catMaybes, fromJust)
 import Text.CSV
 import Vote
 import Chain

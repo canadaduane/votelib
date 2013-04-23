@@ -14,15 +14,14 @@ module Chain (
   -- import Time
   import Vote (Ballot)
 
-
-  data (Ord o) => Vote o =
+  data Vote o =
     Vote
       Int              -- The multiplier (weighting) of this vote
       Ballot           -- The list of ordered preferences
       o                -- A precedence indicator such as time, or sequence
     deriving (Show, Eq)
 
-  data (Ord o) => Voter o =
+  data Voter o =
     Voter
       String           -- The name of the voter
       (Maybe (Vote o)) -- Possibly a vote, if the voter submitted a ballot
